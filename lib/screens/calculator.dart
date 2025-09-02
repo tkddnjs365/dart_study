@@ -212,7 +212,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 alignment: Alignment.centerRight,
                 child: Text(
                   displayText.isEmpty ? '0' : displayText,
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
