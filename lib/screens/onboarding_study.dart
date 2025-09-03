@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:study_flutter/screens/calculator.dart';
+import 'package:study_flutter/navigator_study.dart';
+import 'package:study_flutter/screens/listview_study.dart';
 
 // 앱 테마 설정
 class AppTheme {
-  // Primary Colors (브랜드 컬러)
+  // Primary Colors
   static const Color primaryColor = Color(0xFF6366F1); // 인디고
   static const Color primaryDark = Color(0xFF4F46E5); // 진한 인디고
   static const Color primaryLight = Color(0xFF818CF8); // 연한 인디고
@@ -85,9 +86,9 @@ class OnBoardingContent {
       features: ['feature 1번', 'feature 2번'],
     ),
     OnBoardingData(
-      title: '계산기',
-      body: '첫 화면은 계산기 입니다.',
-      icon: Icons.calculate_rounded,
+      title: 'List View Study',
+      body: '첫 번째 화면은 List View 화면 입니다.',
+      icon: Icons.list,
       iconColor: AppTheme.secondaryColor,
       backgroundColor: AppTheme.backgroundColor,
       features: ['단순 계산 기능'],
@@ -102,9 +103,9 @@ class OnBoardingContent {
   ];
 }
 
-// Home Widget
-class Home extends StatelessWidget {
-  const Home({super.key});
+// OnboardingStudy Widget
+class OnboardingStudy extends StatelessWidget {
+  const OnboardingStudy({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -120,49 +121,25 @@ class OnBoardingPage extends StatefulWidget {
   State<OnBoardingPage> createState() => _OnBoardingPageState();
 }
 
-class _OnBoardingPageState extends State<OnBoardingPage>
-    with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
+class _OnBoardingPageState extends State<OnBoardingPage> {
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: IntroductionScreen(
-        pages: _buildPages(),
-        showDoneButton: true,
-        showNextButton: true,
-        showSkipButton: true,
-        skip: _buildSkipButton(),
-        next: _buildNextButton(),
-        done: _buildDoneButton(),
-        onDone: () => _navigateToCalculator(context),
-        onSkip: () => _navigateToCalculator(context),
-        dotsDecorator: _buildDotsDecorator(),
-        globalBackgroundColor: AppTheme.backgroundColor,
-        animationDuration: 350,
-        curve: Curves.easeInOut,
-      ),
+    return IntroductionScreen(
+      pages: _buildPages(),
+      showDoneButton: true,
+      showNextButton: true,
+      showSkipButton: true,
+      skip: _buildSkipButton(),
+      next: _buildNextButton(),
+      done: _buildDoneButton(),
+      onDone: () =>
+          NavigatorStudy.slideReplaceTo(context, const ListviewStudy()),
+      onSkip: () =>
+          NavigatorStudy.slideReplaceTo(context, const ListviewStudy()),
+      dotsDecorator: _buildDotsDecorator(),
+      globalBackgroundColor: AppTheme.backgroundColor,
+      animationDuration: 350,
+      curve: Curves.easeInOut,
     );
   }
 
@@ -392,31 +369,6 @@ class _OnBoardingPageState extends State<OnBoardingPage>
       pageColor: AppTheme.backgroundColor,
       imagePadding: EdgeInsets.only(top: AppSpacing.xxxl),
       contentMargin: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-    );
-  }
-
-  // 네비게이션
-  void _navigateToCalculator(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const CalculatorScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOutCubic;
-
-          var tween = Tween(
-            begin: begin,
-            end: end,
-          ).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 600),
-      ),
     );
   }
 }

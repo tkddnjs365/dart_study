@@ -118,12 +118,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
       // 일반 입력 추가
       displayText += number;
-      print('calcLog : $calcLog');
     });
   }
 
   String calculateExpression(String expression) {
     // 간단한 계산기 로직 (사칙연산만)
+    expression = expression.replaceAll(',', '');
     expression = expression.replaceAll('×', '*').replaceAll('÷', '/');
 
     // 정규식을 사용해서 숫자와 연산자 분리
@@ -204,9 +204,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               width: double.infinity,
               height: 90,
               padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Align(
                 alignment: Alignment.centerRight,

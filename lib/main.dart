@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:study_flutter/screens/home.dart';
+import 'package:study_flutter/screens/onboarding_study.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: '플러터 공부', home: Home());
+    return MaterialApp(title: '플러터 공부', home: OnboardingStudy());
   }
 }
 
