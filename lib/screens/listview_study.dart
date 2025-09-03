@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:study_flutter/navigator_study.dart';
 import 'package:study_flutter/screens/calculator.dart';
 import 'package:study_flutter/screens/onboarding_study.dart';
+import 'package:study_flutter/screens/todo_study.dart';
 
 class ItemList {
   final String name;
@@ -31,6 +32,12 @@ class ItemListRepository {
       icon: Icons.calculate,
       description: '계산기 화면으로 이동 하는 List View 입니다.',
       screen: CalculatorScreen(),
+    ),
+    ItemList(
+      name: 'TODO APP',
+      icon: Icons.today_outlined,
+      description: 'TODO 화면으로 이동 하는 List View 입니다.',
+      screen: TodoStudy(),
     ),
   ];
 

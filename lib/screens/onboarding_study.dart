@@ -79,11 +79,11 @@ class OnBoardingContent {
   static const List<OnBoardingData> data = [
     OnBoardingData(
       title: 'Flutter Study',
-      body: 'Flutter Study 용 OnBoarding Content입니다.',
+      body: 'Flutter Study 용 OnBoarding Content입니다.\n 화면 목록은 다음과 같습니다.',
       icon: Icons.flutter_dash,
       iconColor: AppTheme.primaryColor,
       backgroundColor: AppTheme.backgroundColor,
-      features: ['feature 1번', 'feature 2번'],
+      features: ['계산기', 'TODO'],
     ),
     OnBoardingData(
       title: 'List View Study',
@@ -91,7 +91,7 @@ class OnBoardingContent {
       icon: Icons.list,
       iconColor: AppTheme.secondaryColor,
       backgroundColor: AppTheme.backgroundColor,
-      features: ['단순 계산 기능'],
+      features: ['List View + ShowDialog'],
     ),
     OnBoardingData(
       title: '시작',
