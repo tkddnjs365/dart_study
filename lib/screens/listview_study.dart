@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:study_flutter/navigator_study.dart';
 import 'package:study_flutter/screens/calculator.dart';
+import 'package:study_flutter/screens/hivedb_study.dart';
 import 'package:study_flutter/screens/onboarding_study.dart';
 import 'package:study_flutter/screens/todo_study.dart';
 
@@ -30,14 +31,24 @@ class ItemListRepository {
     ItemList(
       name: '계산기',
       icon: Icons.calculate,
-      description: '계산기 화면으로 이동 하는 List View 입니다.',
+      description: '계산기 화면으로 이동 하는 List View 입니다.\n 간단한 계산 기능 적용',
       screen: CalculatorScreen(),
     ),
     ItemList(
       name: 'TODO APP',
       icon: Icons.today_outlined,
-      description: 'TODO 화면으로 이동 하는 List View 입니다.',
+      description:
+          'TODO 화면으로 이동 하는 List View 입니다.\n '
+          '- 추가, 삭제 기능만 구현 \n '
+          '- 로컬 DB 저장 기능 \n '
+          '- 슬라이드 삭제 기능',
       screen: TodoStudy(),
+    ),
+    ItemList(
+      name: 'Hive DB',
+      icon: Icons.data_object,
+      description: 'Hive DB Study',
+      screen: HivedbStudy(),
     ),
   ];
 
