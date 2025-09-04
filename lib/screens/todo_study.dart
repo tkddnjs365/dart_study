@@ -12,13 +12,26 @@ class TodoStudy extends StatefulWidget {
 class _TodoStudyState extends State<TodoStudy> {
   List<String> todoList = [];
 
-  @override
-  void initState() {
-    super.initState();
-    getLocalData(); // 앱 시작 시 저장된 데이터 불러오기
-  }
-
   void addTodo({required String todoText}) {
+    if (todoList.contains(todoText)) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('중복된 항목입니다!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('확인'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
     setState(() {
       todoList.insert(0, todoText);
     });
@@ -26,79 +39,106 @@ class _TodoStudyState extends State<TodoStudy> {
     Navigator.pop(context); // Todo List 입력창 닫기
   }
 
+  // 로컬 데이터 저장
   void writeLocalData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setStringList('todoList', todoList);
   }
 
+  // 앱 시작 시 로컬 데이터 불러오기
   void getLocalData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final List<String>? localTodoList = prefs.getStringList('todoList');
+    setState(() {
+      todoList = (prefs.getStringList('todoList') ?? []).toList();
+    });
+  }
 
-    if (localTodoList != null) {
-      setState(() {
-        todoList = localTodoList;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    getLocalData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(child: Text('Drawer')),
-      appBar: AppBar(
-        title: Text('TODO Study'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) {
-                  return Padding(
-                    padding: MediaQuery.of(context).viewInsets,
-                    child: Container(
-                      height: 250,
-                      child: TodoAddTask(addTodo: addTodo),
+      appBar: AppBar(title: Text('TODO Study'), centerTitle: true),
+      body: (todoList.isEmpty)
+          ? Center(child: Text('데이터 없음', style: TextStyle(fontSize: 20)))
+          : ListView.builder(
+              itemCount: todoList.length,
+              itemBuilder: (context, index) {
+                return Dismissible(
+                  key: Key(todoList[index]),
+                  direction: DismissDirection.startToEnd,
+                  background: Container(
+                    color: Colors.red,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(Icons.delete),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              );
-            },
-            icon: Icon(Icons.add),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: todoList.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(todoList[index]),
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) {
-                  return Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(20),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          todoList.remove(todoList[index]);
-                          writeLocalData();
-                          Navigator.pop(context); // Todo List 입력창 닫기
-                        });
-                      },
-                      child: Text('삭제!'),
-                    ),
-                  );
-                },
-              );
-            },
-          );
+                  ),
+                  onDismissed: (direction) {
+                    setState(() {
+                      todoList.removeAt(index);
+                      writeLocalData();
+                    });
+                  },
+                  child: ListTile(
+                    title: Text(todoList[index]),
+                    onTap: () {
+                      _buildShowModalBottomSheet();
+                    },
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
+
+  // Floatin Action 버튼
+  FloatingActionButton _buildFloatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: SizedBox(
+                height: 250,
+                child: TodoAddTask(addTodo: addTodo),
+              ),
+            );
+          },
+        );
+      },
+      backgroundColor: Colors.black,
+      child: Icon(Icons.add, color: Colors.white),
+    );
+  }
+
+  // Show Modal Bottom Sheet 위젯
+  Widget _buildShowModalBottomSheet() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            todoList.remove(todoList[0]);
+            writeLocalData();
+            Navigator.pop(context); // Todo List 입력창 닫기
+          });
         },
+        child: Text('삭제!'),
       ),
     );
   }
