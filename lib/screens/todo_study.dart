@@ -40,14 +40,14 @@ class _TodoStudyState extends State<TodoStudy> {
   }
 
   // 로컬 데이터 저장
-  void writeLocalData() async {
+  Future<void> writeLocalData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setStringList('todoList', todoList);
   }
 
   // 앱 시작 시 로컬 데이터 불러오기
-  void getLocalData() async {
+  Future<void> _loadTodoList() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -58,7 +58,7 @@ class _TodoStudyState extends State<TodoStudy> {
   @override
   void initState() {
     super.initState();
-    getLocalData();
+    _loadTodoList();
   }
 
   @override
