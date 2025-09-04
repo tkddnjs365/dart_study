@@ -83,7 +83,7 @@ class OnBoardingContent {
       icon: Icons.flutter_dash,
       iconColor: AppTheme.primaryColor,
       backgroundColor: AppTheme.backgroundColor,
-      features: ['계산기', 'TODO'],
+      features: ['계산기', 'TODO', 'Hive DB'],
     ),
     OnBoardingData(
       title: 'List View Study',

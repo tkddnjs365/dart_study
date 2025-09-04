@@ -8,7 +8,8 @@ class HivedbStudy extends StatefulWidget {
   State<HivedbStudy> createState() => _HivedbStudyState();
 }
 
-class _HivedbStudyState extends State<HivedbStudy> {
+class _HivedbStudyState extends State<HivedbStudy>
+    with TickerProviderStateMixin {
   // Hive 데이터베이스 박스 - 'hiveBox'라는 이름으로 저장소 생성
   final _mybox = Hive.box('hiveBox');
 
@@ -18,9 +19,26 @@ class _HivedbStudyState extends State<HivedbStudy> {
   var myText = TextEditingController(); // 항목 입력을 위한 텍스트 컨트롤러
   var myValue = TextEditingController(); // 값 입력을 위한 텍스트 컨트롤러
 
+  // 깜빡임 애니메이션용 컨트롤러
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+
+    // 애니메이션 컨트롤러 초기화
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
     getItem();
   }
 
@@ -29,6 +47,8 @@ class _HivedbStudyState extends State<HivedbStudy> {
     // 메모리 누수 방지를 위해 컨트롤러 해제
     myText.dispose();
     myValue.dispose();
+    _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -47,8 +67,20 @@ class _HivedbStudyState extends State<HivedbStudy> {
 
     // 상태 업데이트 - 이걸 해야 화면이 새로고침됨
     setState(() {
-      myData = updatedData;
+      myData = updatedData.reversed.toList(); // 최신순 정렬
     });
+
+    // 깜빡임 애니메이션 실행
+    _animationController.reset();
+    _animationController.forward();
+
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0.0, // 맨 위 위치
+        duration: const Duration(milliseconds: 500), // 0.5초 동안
+        curve: Curves.easeInOut, // 부드러운 애니메이션
+      );
+    }
   }
 
   // 데이터 삭제
@@ -91,6 +123,8 @@ class _HivedbStudyState extends State<HivedbStudy> {
     addItem(data);
     myText.clear();
     myValue.clear();
+
+    FocusScope.of(context).unfocus(); // 키보드 숨기기
   }
 
   @override
@@ -105,7 +139,14 @@ class _HivedbStudyState extends State<HivedbStudy> {
       centerTitle: true,
       actions: [
         // 새로고침 버튼 - 데이터를 다시 불러오기
-        IconButton(icon: const Icon(Icons.refresh), onPressed: getItem),
+        Container(
+          margin: const EdgeInsets.only(right: 10),
+          child: IconButton(
+            icon: Icon(Icons.refresh_rounded, color: Colors.blue.shade600),
+            onPressed: getItem,
+            tooltip: '새로고침',
+          ),
+        ),
       ],
     );
   }
@@ -177,40 +218,44 @@ class _HivedbStudyState extends State<HivedbStudy> {
 
   // 리스트 뷰 빌더
   Widget _buildBodyListView() {
-    return ListView.builder(
-      itemCount: myData.length, // 데이터 개수
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-          child: ListTile(
-            // 수정 버튼 ( 왼쪽 )
-            leading: IconButton(
-              icon: const Icon(
-                Icons.change_circle,
-                color: Colors.blue,
-                size: 30,
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: ListView.builder(
+        controller: _scrollController, // 스크롤 컨트롤러 연결
+        itemCount: myData.length, // 데이터 개수
+        itemBuilder: (context, index) {
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: ListTile(
+              // 수정 버튼 ( 왼쪽 )
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.edit_note_outlined,
+                  color: Colors.blue,
+                  size: 30,
+                ),
+                // 수정 다이얼로그 호출 (현재 데이터를 매개변수로 전달)
+                onPressed: () => _showUpdateDialog(
+                  myData[index]['key'],
+                  myData[index]['title'],
+                  myData[index]['value'],
+                ),
               ),
-              // 수정 다이얼로그 호출 (현재 데이터를 매개변수로 전달)
-              onPressed: () => _showUpdateDialog(
-                myData[index]['key'],
-                myData[index]['title'],
-                myData[index]['value'],
+
+              // 삭제 버튼 ( 오른쪽 )
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red, size: 30),
+                onPressed: () => _deleteItem(myData[index]['key']),
               ),
-            ),
 
-            // 삭제 버튼 ( 오른쪽 )
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red, size: 30),
-              onPressed: () => _deleteItem(myData[index]['key']),
+              // 메인 텍스트 (제목)
+              title: Text("${myData[index]['title']}"),
+              // 서브 텍스트 (값)
+              subtitle: Text("${myData[index]['value']}"),
             ),
-
-            // 메인 텍스트 (제목)
-            title: Text("${myData[index]['title']}"),
-            // 서브 텍스트 (값)
-            subtitle: Text("${myData[index]['value']}"),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
